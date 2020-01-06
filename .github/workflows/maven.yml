@@ -13,5 +13,11 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: Set up MySQL 5.7
+      uses: shuzi323/auth@master
+      with:
+        mysql version: 5.7
+        mysql database: example
+        mysql root password: 123456
     - name: Build with Maven
       run: mvn -B package --file pom.xml
