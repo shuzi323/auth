@@ -14,6 +14,7 @@ jobs:
       with:
         java-version: 1.8
     - name: Set up MySQL 5.7
+      uses: shuzi323/auth@master
       with:
         mysql version: 5.7
         mysql database: example
