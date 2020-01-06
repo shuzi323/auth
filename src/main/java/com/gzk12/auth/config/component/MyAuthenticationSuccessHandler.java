@@ -21,12 +21,6 @@ import java.util.Map;
  */
 @Component
 public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-    private static final Map<String, Object> loginSuccess = new HashMap<>();
-    static {
-        loginSuccess.put("code", 0);
-        loginSuccess.put("msg", "登录成功");
-    }
-
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -39,6 +33,10 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
         httpServletResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
         httpServletResponse.setCharacterEncoding("UTF-8");
         httpServletResponse.setHeader("Cache-Control", "no-cache, must-revalidate");
+
+        Map<String, Object> loginSuccess = new HashMap<>();
+        loginSuccess.put("code", 0);
+        loginSuccess.put("msg", "登录成功");
         loginSuccess.put("sessionId", httpServletRequest.getSession().getId());
         httpServletResponse.getWriter().write(objectMapper.writeValueAsString(loginSuccess));
     }
