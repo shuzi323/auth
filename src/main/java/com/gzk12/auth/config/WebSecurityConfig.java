@@ -2,6 +2,7 @@ package com.gzk12.auth.config;
 
 import com.gzk12.auth.config.component.MyAccessDeineHandler;
 import com.gzk12.auth.config.component.MyAuthenticationEntryPoint;
+import com.gzk12.auth.config.component.MyAuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
@@ -23,6 +28,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
@@ -71,16 +77,41 @@ public class WebSecurityConfig<S extends Session> extends WebSecurityConfigurerA
                 .antMatchers("/test/getSessionByUser").hasRole("USER")
                 .anyRequest().authenticated()
                 .and()
-                .sessionManagement().invalidSessionStrategy(invalidSessionStrategy()).maximumSessions(1).maxSessionsPreventsLogin(false).sessionRegistry(sessionRegistry());
+                .sessionManagement().invalidSessionStrategy(invalidSessionStrategy()).maximumSessions(1).sessionRegistry(sessionRegistry());
     }
 
-//    @Bean
-//    public SessionAuthenticationStrategy sessionAuthenticationStrategy(){
-//        ConcurrentSessionControlAuthenticationStrategy strategy = new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry());
-//        strategy.setMaximumSessions(1);
-//        strategy.setExceptionIfMaximumExceeded(false);
-//        return strategy;
-//    }
+    /**
+     * 控制并发session
+     * @return
+     */
+    @Bean
+    public SessionAuthenticationStrategy sessionAuthenticationStrategy(){
+        ConcurrentSessionControlAuthenticationStrategy strategy = new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry());
+        strategy.setMaximumSessions(1);
+        strategy.setExceptionIfMaximumExceeded(false);
+        return strategy;
+    }
+
+    /**
+     * 自定义 UsernamePasswordAuthenticationFilter 自定义登录路由
+     * @return
+     * @throws Exception
+     */
+    @Bean
+    public UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter() throws Exception{
+        UsernamePasswordAuthenticationFilter authenticationFilter = new UsernamePasswordAuthenticationFilter();
+        authenticationFilter.setPostOnly(true);
+        authenticationFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/auth/login", "POST"));
+        authenticationFilter.setAuthenticationManager(customAuthenticationManager());
+        authenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler());
+        authenticationFilter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy());
+        return authenticationFilter;
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+       return new MyAuthenticationSuccessHandler();
+    }
 
     @Bean
     public AuthenticationManager customAuthenticationManager() throws Exception {

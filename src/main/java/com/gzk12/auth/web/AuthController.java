@@ -1,5 +1,6 @@
 package com.gzk12.auth.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gzk12.auth.service.SecurityService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,20 +24,28 @@ public class AuthController {
     @Autowired
     private SecurityService securityService;
 
-    @PostMapping("login")
-    public Object login(String username, String password, HttpSession session){
-        log.info("登录：{}", username);
-        securityService.autoLogin(username, password);
-        Map<String, String> data = new HashMap<>();
-        data.put("msg", "登录成功");
-        data.put("sessionId", session.getId());
-        return data;
-    }
+//    @PostMapping("login")
+//    public Object login(String username, String password, HttpSession session){
+//        log.info("登录：{}", username);
+//        securityService.autoLogin(username, password);
+//        Map<String, String> data = new HashMap<>();
+//        data.put("msg", "登录成功");
+//        data.put("sessionId", session.getId());
+//        return data;
+//    }
 
     @GetMapping("logout")
     public Object logout(HttpSession session){
         session.invalidate();
 //        SecurityContextHolder.clearContext();
         return "logout success";
+    }
+
+    @GetMapping("success")
+    public Object success(HttpSession session){
+        Map<String, String> data = new HashMap<>();
+        data.put("msg", "登录成功");
+        data.put("sessionId", session.getId());
+        return data;
     }
 }
