@@ -1,7 +1,6 @@
 package com.gzk12.auth.config;
 
-import com.gzk12.auth.config.component.MyAccessDeineHandler;
-import com.gzk12.auth.config.component.MyAuthenticationEntryPoint;
+import com.gzk12.auth.config.component.MyAuthenticationFailureHandler;
 import com.gzk12.auth.config.component.MyAuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,20 +12,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.savedrequest.NullRequestCache;
-import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.session.FindByIndexNameSessionRepository;
@@ -50,6 +42,11 @@ public class WebSecurityConfig<S extends Session> extends WebSecurityConfigurerA
     @Resource
     private @NotNull FindByIndexNameSessionRepository<S> findByIndexNameSessionRepository;
 
+    @Autowired
+    private AuthenticationEntryPoint authenticationEntryPoint;
+    @Autowired
+    private AccessDeniedHandler accessDeniedHandler;
+
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
@@ -59,25 +56,26 @@ public class WebSecurityConfig<S extends Session> extends WebSecurityConfigurerA
     public void configure(WebSecurity web) throws Exception {
         web
                 .ignoring()
-                .antMatchers("/resources/**", "/session/invalid");
+                .antMatchers("/resources/**", "/session/invalid", "/commonError/expireSession");
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .exceptionHandling().authenticationEntryPoint(new MyAuthenticationEntryPoint()).accessDeniedHandler(new MyAccessDeineHandler())
+                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).accessDeniedHandler(accessDeniedHandler)
                 .and()
                 .csrf().disable()
                 .formLogin().disable()
                 .logout().disable()
                 .httpBasic().disable()
-                .requestCache().requestCache(new NullRequestCache())
-                .and()
+                .requestCache().disable();
+//                .requestCache().requestCache(new NullRequestCache());
+        http
                 .authorizeRequests().antMatchers("/registration", "/test/hello", "/auth/login").permitAll()
                 .antMatchers("/test/getSessionByUser").hasRole("USER")
-                .anyRequest().authenticated()
-                .and()
-                .sessionManagement().invalidSessionStrategy(invalidSessionStrategy()).maximumSessions(1).sessionRegistry(sessionRegistry());
+                .anyRequest().authenticated();
+        http
+                .sessionManagement().invalidSessionStrategy(invalidSessionStrategy()).maximumSessions(1).expiredUrl("/commonError/expireSession").sessionRegistry(sessionRegistry());
     }
 
     /**
@@ -93,7 +91,7 @@ public class WebSecurityConfig<S extends Session> extends WebSecurityConfigurerA
     }
 
     /**
-     * 自定义 UsernamePasswordAuthenticationFilter 自定义登录路由
+     * 通过 UsernamePasswordAuthenticationFilter 自定义登录路由
      * @return
      * @throws Exception
      */
@@ -105,7 +103,13 @@ public class WebSecurityConfig<S extends Session> extends WebSecurityConfigurerA
         authenticationFilter.setAuthenticationManager(customAuthenticationManager());
         authenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler());
         authenticationFilter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy());
+        authenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler());
         return authenticationFilter;
+    }
+
+    @Bean
+    public AuthenticationFailureHandler authenticationFailureHandler(){
+        return new MyAuthenticationFailureHandler();
     }
 
     @Bean

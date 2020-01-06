@@ -3,8 +3,8 @@ package com.gzk12.auth.config.component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
@@ -14,17 +14,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 成功登录返回
- * @Author Yang ShuNing
- * @Date 2020/1/6
- */
 @Component
-public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-    private static final Map<String, Object> loginSuccess = new HashMap<>();
+public class MyAuthenticationFailureHandler implements AuthenticationFailureHandler {
+    private static final Map<String, Object> loginFail = new HashMap<>();
     static {
-        loginSuccess.put("code", 0);
-        loginSuccess.put("msg", "登录成功");
+        loginFail.put("code", 400);
+        loginFail.put("msg", "用户名或密码错误");
     }
 
     private ObjectMapper objectMapper;
@@ -35,11 +30,10 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
     }
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
         httpServletResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
         httpServletResponse.setCharacterEncoding("UTF-8");
         httpServletResponse.setHeader("Cache-Control", "no-cache, must-revalidate");
-        loginSuccess.put("sessionId", httpServletRequest.getSession().getId());
-        httpServletResponse.getWriter().write(objectMapper.writeValueAsString(loginSuccess));
+        httpServletResponse.getWriter().write(objectMapper.writeValueAsString(loginFail));
     }
 }

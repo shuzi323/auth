@@ -40,12 +40,4 @@ public class AuthController {
 //        SecurityContextHolder.clearContext();
         return "logout success";
     }
-
-    @GetMapping("success")
-    public Object success(HttpSession session){
-        Map<String, String> data = new HashMap<>();
-        data.put("msg", "登录成功");
-        data.put("sessionId", session.getId());
-        return data;
-    }
 }

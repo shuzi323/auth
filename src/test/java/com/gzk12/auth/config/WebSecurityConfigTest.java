@@ -14,6 +14,7 @@ class WebSecurityConfigTest {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String encodedStr = encoder.encode("1747882365@qq.com");
         log.debug("bCryptPasswordEncoder: {}", encodedStr);
+        log.debug("{}", encoder.encode("12345678"));
         assertTrue(encoder.matches("1747882365@qq.com", encodedStr));
     }
 }
