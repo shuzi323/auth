@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/example?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&allowPublicKeyRetrieval=true&verifyServerCertificate=false&useSSL=false
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL57Dialect
+    generate-ddl: true
+    show-sql: true
+#  mvc:
+#    view:
+#      prefix: /
+#      suffix: .jsp
+  redis:
+    host: localhost
+    port: 6379
+    database: 5
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 1
+        max-wait: 2000
+
+# 这两个注解在使用@EnableRedisHttpSession时没用
+#  session:
+#    redis:
+#      namespace: auth:session
+#    store-type: redis           #这个和@EnableRedisHttpSession 一样
+#server:
+#  servlet:
+#    session:
+#      timeout: 1d
+logging:
+  level:
+    root: debug
