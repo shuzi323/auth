@@ -3,8 +3,11 @@ package com.gzk12.auth.config.component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
@@ -38,6 +41,16 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
         loginSuccess.put("code", 0);
         loginSuccess.put("msg", "登录成功");
         loginSuccess.put("sessionId", httpServletRequest.getSession().getId());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //在detail里加上sessionId
+        if (auth.getDetails() instanceof WebAuthenticationDetails){
+            WebAuthenticationDetails details = new WebAuthenticationDetails(httpServletRequest);
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                    auth.getPrincipal(), auth.getCredentials(), auth.getAuthorities()
+            );
+            usernamePasswordAuthenticationToken.setDetails(details);
+            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+        }
         httpServletResponse.getWriter().write(objectMapper.writeValueAsString(loginSuccess));
     }
 }

@@ -7,17 +7,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
+import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author Yang ShuNing
@@ -30,6 +34,9 @@ public class Hello {
     private UserRepository userRepository;
     @Autowired
     private FindByIndexNameSessionRepository<? extends Session> findByIndexNameSessionRepository;
+
+    @Autowired
+    private RedisIndexedSessionRepository redisIndexedSessionRepository;
 
     @GetMapping("hello")
     public List<User> hello(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int limit){
