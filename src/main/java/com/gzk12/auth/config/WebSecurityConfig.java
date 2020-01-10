@@ -92,6 +92,7 @@ public class WebSecurityConfig<S extends Session> extends WebSecurityConfigurerA
 
     /**
      * 通过 UsernamePasswordAuthenticationFilter 自定义登录路由
+     * 可以重写这个类来实现自己的登录
      * @return
      * @throws Exception
      */
