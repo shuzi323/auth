@@ -2,6 +2,7 @@ package com.gzk12.auth.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gzk12.auth.service.SecurityService;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +35,7 @@ public class AuthController {
 //        return data;
 //    }
 
+    @ApiOperation(value = "退出登录接口")
     @GetMapping("logout")
     public Object logout(HttpSession session){
         session.invalidate();

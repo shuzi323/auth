@@ -3,6 +3,8 @@ package com.gzk12.auth.web;
 import com.gzk12.auth.annotation.LoginUser;
 import com.gzk12.auth.model.User;
 import com.gzk12.auth.repository.UserRepository;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +29,7 @@ import java.util.Map;
  * @Author Yang ShuNing
  * @Date 2019/12/26
  */
+@Api(value = "测试用的接口")
 @RestController
 @RequestMapping("test")
 public class Hello {
@@ -38,16 +41,19 @@ public class Hello {
     @Autowired
     private RedisIndexedSessionRepository redisIndexedSessionRepository;
 
+    @ApiOperation(value = "获取用户列表")
     @GetMapping("hello")
     public List<User> hello(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int limit){
         return userRepository.findAllByDeletedFalse();
     }
 
+    @ApiOperation(value = "获取用户列表（分页）")
     @GetMapping("hello2")
     public Page<User> hello2(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int limit){
         return userRepository.findAll(PageRequest.of(page, limit));
     }
 
+    @ApiOperation(value = "获取用户信息")
     @GetMapping("user")
     public Object user(Principal principal){
         System.out.println(principal);
