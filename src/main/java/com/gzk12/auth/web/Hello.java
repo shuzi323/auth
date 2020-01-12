@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,8 +50,8 @@ public class Hello {
 
     @ApiOperation(value = "获取用户列表（分页）")
     @GetMapping("hello2")
-    public Page<User> hello2(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int limit){
-        return userRepository.findAll(PageRequest.of(page, limit));
+    public Page<UserRepository.UserInfo> hello2(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int limit){
+        return userRepository.findAllByDeletedFalse(PageRequest.of(page, limit));
     }
 
     @ApiOperation(value = "获取用户信息")
