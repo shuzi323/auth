@@ -56,7 +56,9 @@ public class WebSecurityConfig<S extends Session> extends WebSecurityConfigurerA
     public void configure(WebSecurity web) throws Exception {
         web
                 .ignoring()
-                .antMatchers("/resources/**", "/session/invalid", "/commonError/expireSession", "/test/hello2");
+                .antMatchers("/resources/**", "/session/invalid", "/commonError/expireSession", "/test/hello2")
+                .antMatchers("/resources/**", "/session/invalid", "/commonError/expireSession",
+                        "/swagger-ui.html", "/webjars/**", "/swagger-resources/**", "/v2/**");
     }
 
     @Override
