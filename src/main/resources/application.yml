@@ -37,3 +37,4 @@ spring:
 logging:
   level:
     root: debug
+    org.springframework.data: info

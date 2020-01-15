@@ -6,6 +6,7 @@ import com.gzk12.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,7 +47,8 @@ public class Hello {
 
     @GetMapping("hello2")
     public Page<UserRepository.UserInfo> hello2(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int limit){
-        return userRepository.findAllByDeletedFalse(PageRequest.of(page, limit));
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        return userRepository.findAllByDeletedFalse(PageRequest.of(page, limit, sort));
     }
 
     @GetMapping("user")
